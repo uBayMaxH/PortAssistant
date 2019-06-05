@@ -1,0 +1,13 @@
+[Desktop Entry]
+
+Type=Application
+
+Name=PortAssistant
+
+Icon=/opt/PortAssistant/mainicon.ico
+
+Exec=/opt/PortAssistant/PortAssistant
+
+Terminal=false
+
+Categories=Network;InstantMessaging
