@@ -231,9 +231,4 @@ void DisplayArea::mouseDoubleClickEvent(QMouseEvent *e)
         m_pauseDisplay = !m_pauseDisplay;
         PauseDisplaySet(m_pauseDisplay);
     }
-    else
-    {
-        //如果是右键双击则清空接收区
-        clear();
-    }
 }
