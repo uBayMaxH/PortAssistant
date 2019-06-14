@@ -3,6 +3,9 @@
 UdpSocket::UdpSocket()
 {
     m_socket=new QUdpSocket(this);
+
+    m_oppositeIp = QHostAddress::Broadcast;
+    m_oppositePort = 80;
 }
 
 UdpSocket::~UdpSocket()
@@ -46,5 +49,12 @@ void UdpSocket::UdpSocketReadDtatSlot()
         m_readData.resize(static_cast<int>(rxLen));
         m_socket->readDatagram(m_readData.data(),rxLen,&m_oppositeIp,&m_oppositePort);
         ReadDatas();
+        if ((m_oppositeIpLast != m_oppositeIp) || (m_oppositePortLast != m_oppositePort))
+        {
+            //用于实时显示udp连接状态
+            m_oppositeIpLast = m_oppositeIp;
+            m_oppositePortLast = m_oppositePort;
+            OppositeAddrChange();
+        }
     }
 }

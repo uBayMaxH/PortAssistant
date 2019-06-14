@@ -30,6 +30,9 @@ public:
     explicit NetPortSettings(QWidget *parent = nullptr);
     ~NetPortSettings();
 
+protected:
+    void closeEvent(QCloseEvent *event);
+
 public:
     void NetPortTypeSet(eNetPortTypt portType);
     eNetPortTypt NetPortTypeGet();
@@ -44,12 +47,13 @@ private slots:
     void ApplyBtnClicked();
 
 signals:
-    void NetPortTypeChange();
+    void NetPortTypeChange(bool);
 
 private:
     Ui::NetPortSettings *m_netSetUi;
 
     eNetPortTypt m_netType;           //当前选择的网络类型
+    eNetPortTypt m_netTypeLast;
 
     NetAddr_t   m_localAddr;
     NetAddr_t   m_oppositeAddr;

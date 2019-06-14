@@ -46,10 +46,13 @@ MainInterface::MainInterface(QWidget *parent) :
     connect(m_sendingArea, &SendingArea::SendingDatas, this, &MainInterface::WriteData);
     connect(m_serialSettings, &SerialSettings::ApplyClicked,this, &MainInterface::SettingsApplySlot);
     /*网口*/
-    connect(m_netPortSettings, &NetPortSettings::NetPortTypeChange, this, &MainInterface::NetPortTypeChanged);
+    connect(m_netPortSettings, SIGNAL(NetPortTypeChange(bool)), this, SLOT(NetPortTypeChanged(bool)));
     connect(m_udpPort, &UdpSocket::ReadDatas, this, &MainInterface::ReadPortData);
+    connect(m_udpPort, &UdpSocket::OppositeAddrChange, this, &MainInterface::UDPClientChanged);
     connect(m_tcpClientPort, &TcpClientSocket::ReadDatas, this, &MainInterface::ReadPortData);
     connect(m_tcpServerPort, &TcpServerSocket::ReadDatas, this, &MainInterface::ReadPortData);
+    connect(m_tcpServerPort, &TcpServerSocket::OppositeAddrChange, this, &MainInterface::TCPServerOppositeAddrChanged);
+
     /*检测串口断开，可检测热插拔情况*/
     connect(m_serial,SIGNAL(error(QSerialPort::SerialPortError)),this,SLOT(SerialMonitor(QSerialPort::SerialPortError)));
     connect(m_tcpClientPort,SIGNAL(Disconnect()),this,SLOT(NetPortMonitor()));
@@ -163,6 +166,7 @@ void MainInterface::MenuInit(void)
 #endif
     m_menuBar->setMaximumHeight(23);
     connect(m_menuBar,SIGNAL(triggered(QAction*)),this,SLOT(TrigerMenuSlot(QAction*)));
+    connect(m_displayArea, SIGNAL(PauseDisplaySet(bool)), this, SLOT(PauseDisplaySlot(bool)));
 }
 
 void MainInterface::ToolBarInit(void)
@@ -331,19 +335,14 @@ void MainInterface::PortSelect(QString string)
         if ((m_action[MENU_PORT_SELECT][i] != nullptr) && (m_action[MENU_PORT_SELECT][i]->text() == string) && (!m_action[MENU_PORT_SELECT][i]->isChecked()))
         {
             m_action[MENU_PORT_SELECT][i]->setChecked(true);
-            if (m_portType == PORT_TYPE_SERIAL)
+            if (m_portType != PORT_TYPE_SERIAL)
             {
-                return;
-            }
-            else
-            {
-                ClosePort();
                 m_netPortSettings->show();
             }
+            return;
         }
     }
-    //先关闭其他端口
-    ClosePort();
+
     //取消其他选项前面的勾
     for (int i = 0; i < 10; i++)
     {
@@ -374,12 +373,17 @@ void MainInterface::PortSelect(QString string)
 #ifdef Q_OS_WIN
     else if (string.indexOf("COM") >= 0)
     {
+        //如果是选的串口则先关闭其他端口
+        ClosePort();
+
         m_portType = PORT_TYPE_SERIAL;
         m_serialSettings->CurrentSerialNameSet(string.mid(string.indexOf("COM"), 4));
     }
 #else
     else if (string.indexOf("tty") >= 0)
     {
+        //如果是选的串口则先关闭其他端口
+        ClosePort();
         m_portType = PORT_TYPE_SERIAL;
         m_serialSettings->CurrentSerialNameSet(string.mid(string.indexOf("tty"), 7));
     }
@@ -562,11 +566,12 @@ void MainInterface::OpenPort(void)
             m_udpPort->OppositeAddrInfoSet(addr.ip, addr.port);
             if (m_udpPort->SocketConnect())
             {
-                ShowStatusMessage(tr("Connected to UDP-%1:%2").arg(m_udpPort->LocalIpGet()).arg(m_udpPort->LocalPortGet()));
+                ShowStatusMessage(tr("UDP begin:[local addr %1:%2]-[opposite addr %3:%4]").arg(m_udpPort->LocalIpGet()).arg(m_udpPort->LocalPortGet())
+                                  .arg(m_udpPort->OppositeIpGet()).arg(m_udpPort->OppositePortGet()));
             }
             else
             {
-                QMessageBox::critical(this, tr("Error"), tr("Connection fail to %1:%2").arg(m_udpPort->OppositeIpGet()).arg(m_udpPort->OppositePortGet()));
+                QMessageBox::critical(this, tr("Error"), tr("UDP Connection fail to %1:%2").arg(m_udpPort->OppositeIpGet()).arg(m_udpPort->OppositePortGet()));
             }
         }
         break;
@@ -574,6 +579,8 @@ void MainInterface::OpenPort(void)
         {
             NetAddr_t addr = m_netPortSettings->OppositeAddrGet();
             m_tcpClientPort->OppositeAddrInfoSet(addr.ip, addr.port);
+            addr = m_netPortSettings->LocalAddrGet();
+            m_tcpClientPort->LocalAddrInfoSet(addr.ip, addr.port);
             m_tcpClientPort->SocketConnect();
             qint8 cnt = 5;        //5s
             while (cnt--)
@@ -581,7 +588,8 @@ void MainInterface::OpenPort(void)
                 CommonTools::sleep(100);
                 if (m_tcpClientPort->SocketIsValid())
                 {
-                    ShowStatusMessage(tr("Connected to TcpClient-%1:%2").arg(m_tcpClientPort->OppositeIpGet()).arg(m_tcpClientPort->OppositePortGet()));
+                    ShowStatusMessage(tr("TcpClient Connect Success:[local addr %1:%2]-[server addr %3:%4]").arg(m_tcpClientPort->LocalIpGet()).arg(m_tcpClientPort->LocalPortGet())
+                                      .arg(m_tcpClientPort->OppositeIpGet()).arg(m_tcpClientPort->OppositePortGet()));
                     break;
                 }
             }
@@ -599,7 +607,7 @@ void MainInterface::OpenPort(void)
             m_tcpServerPort->SocketConnect();
             if (m_tcpServerPort->SocketIsValid())
             {
-                ShowStatusMessage(tr("Connected to TcpServer-%1:%2").arg(m_tcpServerPort->LocalIpGet()).arg(m_tcpServerPort->LocalPortGet()));
+                ShowStatusMessage(tr("TcpServer Success:[local addr %1:%2]").arg(m_tcpServerPort->LocalIpGet()).arg(m_tcpServerPort->LocalPortGet()));
             }
             else
             {
@@ -766,20 +774,33 @@ void MainInterface::ToolBarSaveFileSolt(void)
     }
 }
 
-void MainInterface::NetPortTypeChanged()
+void MainInterface::PauseDisplaySlot(bool state)
 {
+    m_action[MENU_RECEIVE_SETTINGS][0]->setChecked(state);
+}
+
+void MainInterface::NetPortTypeChanged(bool state)
+{
+    if (state)
+    {
+        //先关闭端口
+        ClosePort();
+    }
     m_action[MENU_PORT_SELECT][0]->setChecked(false);
     m_action[MENU_PORT_SELECT][1]->setChecked(false);
     m_action[MENU_PORT_SELECT][2]->setChecked(false);
     switch (m_netPortSettings->NetPortTypeGet())
     {
     case NET_PORT_TYPE_UDP:
+        m_portType = PORT_TYPE_UDP;
         m_action[MENU_PORT_SELECT][0]->setChecked(true);
         break;
     case NET_PORT_TYPE_TCPCLICENT:
+        m_portType = PORT_TYPE_TCPCLIENT;
         m_action[MENU_PORT_SELECT][1]->setChecked(true);
         break;
     case NET_PORT_TYPE_TCPSERVER:
+        m_portType = PORT_TYPE_TCPSERVER;
         m_action[MENU_PORT_SELECT][2]->setChecked(true);
         break;
     default:
@@ -814,4 +835,16 @@ void MainInterface::NetPortMonitor()
     }
     QMessageBox::critical(this, tr("Error"), "连接已断开，请检查连接情况！");
     ClosePort();
+}
+
+void MainInterface::UDPClientChanged(void)
+{
+    ShowStatusMessage(tr("UDP begin:[local addr %1:%2]-[opposite addr %3:%4]").arg(m_udpPort->LocalIpGet()).arg(m_udpPort->LocalPortGet())
+                      .arg(m_udpPort->OppositeIpGet()).arg(m_udpPort->OppositePortGet()));
+}
+
+void MainInterface::TCPServerOppositeAddrChanged(void)
+{
+    ShowStatusMessage(tr("TcpServer Success:[local addr %1:%2]-[client addr %3:%4]").arg(m_tcpServerPort->LocalIpGet()).arg(m_tcpServerPort->LocalPortGet())
+                      .arg(m_tcpServerPort->OppositeIpGet()).arg(m_tcpServerPort->OppositePortGet()));
 }

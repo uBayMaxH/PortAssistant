@@ -227,6 +227,13 @@ void DisplayArea::mouseDoubleClickEvent(QMouseEvent *e)
 {
     if (e->button() == Qt::LeftButton)
     {
+        //如果是左键双击则可暂停（恢复）显示
         m_pauseDisplay = !m_pauseDisplay;
+        PauseDisplaySet(m_pauseDisplay);
+    }
+    else
+    {
+        //如果是右键双击则清空接收区
+        clear();
     }
 }

@@ -4,6 +4,9 @@ TcpServerSocket::TcpServerSocket()
 {
     m_socket = new QTcpServer(this);
     m_clientSocket.clear();
+
+    m_oppositeIp = QHostAddress::Broadcast;
+    m_oppositePort = 80;
 }
 
 TcpServerSocket::~TcpServerSocket()
@@ -53,8 +56,17 @@ void TcpServerSocket::NewClientConnection()
 {
     /*获取新客户端的套接字信息*/
     QTcpSocket *clientSocket=m_socket->nextPendingConnection();
+
     if (m_clientSocket.count() <= 10)
     {
+        m_oppositeIp = clientSocket->peerAddress();
+        m_oppositePort = clientSocket->peerPort();
+        if ((m_oppositeIpLast != m_oppositeIp) || (m_oppositePortLast != m_oppositePort))
+        {
+            m_oppositeIpLast = m_oppositeIp;
+            m_oppositePortLast = m_oppositePort;
+            OppositeAddrChange();
+        }
         m_clientSocket.append(clientSocket);
     }
     /*关联可读信号*/

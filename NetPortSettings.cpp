@@ -12,6 +12,7 @@ NetPortSettings::NetPortSettings(QWidget *parent) :
      setWindowModality(Qt::ApplicationModal);
 
     NetPortTypeSet(NET_PORT_TYPE_UDP);
+    m_netTypeLast = NET_PORT_TYPE_UDP;
     LocalIpAddrQuery();
 
     connect(m_netSetUi->UDPButton, SIGNAL(clicked()), this, SLOT(NetPortTypeChanged()));
@@ -24,6 +25,20 @@ NetPortSettings::NetPortSettings(QWidget *parent) :
 NetPortSettings::~NetPortSettings()
 {
     delete m_netSetUi;
+}
+
+void NetPortSettings::closeEvent(QCloseEvent *event)
+{
+    (void)event;
+    if (m_netType == m_netTypeLast)
+    {
+        return;
+    }
+    else
+    {
+        NetPortTypeSet(m_netTypeLast);
+        NetPortTypeChange(false);
+    }
 }
 
 void NetPortSettings::NetPortTypeSet(eNetPortTypt portType)
@@ -80,6 +95,7 @@ void NetPortSettings::LocalIpAddrQuery()
         if(addr.protocol() == QAbstractSocket::IPv4Protocol)
         {
             m_netSetUi->LocalIp->addItem(addr.toString());
+            m_netSetUi->OppositeIp->addItem(addr.toString());
         }
     }
     m_netSetUi->LocalIp->addItem("255.255.255.255");
@@ -121,6 +137,14 @@ void NetPortSettings::NetPortTypeChanged()
 
 void NetPortSettings::ApplyBtnClicked()
 {
+    if ((m_netTypeLast == m_netType) && (m_localAddr.ip == m_netSetUi->LocalIp->currentText()) && (m_localAddr.port == static_cast<quint16>(m_netSetUi->LocalPort->text().toInt()))
+            && (m_oppositeAddr.ip == m_netSetUi->OppositeIp->currentText()) && (m_oppositeAddr.port == static_cast<quint16>(m_netSetUi->OppositePort->text().toInt())))
+    {
+        //此次设置什么都没改变，则不需要进行后续操作
+        hide();
+        return;
+    }
+    m_netTypeLast = m_netType;
     m_localAddr.ip = m_netSetUi->LocalIp->currentText();
     m_localAddr.port = static_cast<quint16>(m_netSetUi->LocalPort->text().toInt()) ;
     if ((!m_netSetUi->OppositeIp->currentText().isEmpty()) && (m_netSetUi->OppositeIp->currentText() != m_oppositeAddr.ip))
@@ -129,7 +153,7 @@ void NetPortSettings::ApplyBtnClicked()
         m_netSetUi->OppositeIp->addItem(m_oppositeAddr.ip);
     }
     m_oppositeAddr.port = static_cast<quint16>(m_netSetUi->OppositePort->text().toInt());
-    NetPortTypeChange();
+    NetPortTypeChange(true);
     hide();
 }
 

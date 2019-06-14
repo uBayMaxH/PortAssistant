@@ -92,10 +92,15 @@ private slots:
     void ToolBarOpenFileSolt(void);
     void ToolBarSaveFileSolt(void);
 
-    void NetPortTypeChanged();
+    void PauseDisplaySlot(bool state);
+
+    void NetPortTypeChanged(bool state);
 
     void SerialMonitor(QSerialPort::SerialPortError error);
     void NetPortMonitor();
+
+    void UDPClientChanged(void);
+    void TCPServerOppositeAddrChanged(void);
 
 private:
     Ui::MainInterface *m_mainUi = nullptr;

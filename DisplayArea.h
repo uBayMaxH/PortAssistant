@@ -50,6 +50,9 @@ protected:
     //void mousePressEvent(QMouseEvent *e);    //按下
     void mouseDoubleClickEvent(QMouseEvent *e);//双击
 
+signals:
+    void PauseDisplaySet(bool);
+
 private:
     QTextCodec  *m_codeConverter;       //用于解决接收和发送中文乱码问题
     bool        m_displayTime;          //是否显示时间

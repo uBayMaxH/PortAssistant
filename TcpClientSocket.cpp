@@ -16,6 +16,7 @@ TcpClientSocket::~TcpClientSocket()
 
 bool TcpClientSocket::SocketConnect()
 {
+    m_socket->bind(m_localIp, m_localPort);
     m_socket->connectToHost(m_oppositeIp, m_oppositePort);
     return true;
 }
