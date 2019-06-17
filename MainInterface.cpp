@@ -579,8 +579,6 @@ void MainInterface::OpenPort(void)
         {
             NetAddr_t addr = m_netPortSettings->OppositeAddrGet();
             m_tcpClientPort->OppositeAddrInfoSet(addr.ip, addr.port);
-            addr = m_netPortSettings->LocalAddrGet();
-            m_tcpClientPort->LocalAddrInfoSet(addr.ip, addr.port);
             m_tcpClientPort->SocketConnect();
             qint8 cnt = 50;        //5s
             while (cnt--)

@@ -17,7 +17,7 @@ TcpClientSocket::~TcpClientSocket()
 
 bool TcpClientSocket::SocketConnect()
 {
-    //m_socket->bind(m_localIp, m_localPort);  //客户端一般不绑定端口
+    //m_socket->bind(m_localPort);  //客户端一般不绑定端口
     m_socket->connectToHost(m_oppositeIp, m_oppositePort);
     return true;
 }
@@ -41,6 +41,8 @@ qint64 TcpClientSocket::WriteDatas(const QByteArray &data)
 void TcpClientSocket::TcpClientConnectedSlot()
 {
     m_connectState = true;
+    m_localIp = m_socket->localAddress();
+    m_localPort = m_socket->localPort();
 }
 
 void TcpClientSocket::TcpClientDisconnectedSlot()
