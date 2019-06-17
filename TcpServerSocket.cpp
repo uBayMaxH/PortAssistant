@@ -32,6 +32,7 @@ void TcpServerSocket::SocketDisConnect()
         m_clientSocket.removeAt(i);
     }
     m_socket->close();
+    disconnect(m_socket,SIGNAL(newConnection()),this,SLOT(NewClientConnection()));
     m_connectState = false;
 }
 
@@ -73,7 +74,6 @@ void TcpServerSocket::NewClientConnection()
     connect(clientSocket,SIGNAL(readyRead()),this,SLOT(ReadTcpClientData()));
     /*关联断开信号*/
     connect(clientSocket,SIGNAL(disconnected()),this,SLOT(TcpClientDisconnected()));
-    qDebug() << m_clientSocket.size();
 }
 
 void TcpServerSocket::ReadTcpClientData()
@@ -95,6 +95,8 @@ void TcpServerSocket::TcpClientDisconnected()
         //判断这个客户端是否断开
         if (m_clientSocket.at(i)->socketDescriptor() == -1)
         {
+            disconnect(m_clientSocket.at(i),SIGNAL(readyRead()),this,SLOT(ReadTcpClientData()));
+            disconnect(m_clientSocket.at(i),SIGNAL(disconnected()),this,SLOT(TcpClientDisconnected()));
             m_clientSocket.removeAt(i);
         }
     }

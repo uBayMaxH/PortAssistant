@@ -27,6 +27,7 @@ signals:
 
 private:
     QTcpSocket      *m_socket;
+    bool            m_initiativeDisconnect;
 };
 
 #endif // TCPCLIENTSOCKET_H

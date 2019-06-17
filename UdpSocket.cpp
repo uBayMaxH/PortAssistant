@@ -31,6 +31,7 @@ void UdpSocket::SocketDisConnect()
     if (m_connectState)
     {
         m_socket->close();
+        disconnect(m_socket,SIGNAL(readyRead()),this,SLOT(UdpSocketReadDtatSlot()));
         m_connectState = false;
     }
 }

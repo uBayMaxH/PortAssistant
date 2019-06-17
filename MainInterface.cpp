@@ -582,7 +582,7 @@ void MainInterface::OpenPort(void)
             addr = m_netPortSettings->LocalAddrGet();
             m_tcpClientPort->LocalAddrInfoSet(addr.ip, addr.port);
             m_tcpClientPort->SocketConnect();
-            qint8 cnt = 5;        //5s
+            qint8 cnt = 50;        //5s
             while (cnt--)
             {
                 CommonTools::sleep(100);
@@ -623,16 +623,17 @@ void MainInterface::OpenPort(void)
 
 void MainInterface::ClosePort(void)
 {
+    if (m_sendingArea->AutoSendingStatusGet())
+    {
+        //如果定时发送的定时器已经start，则stop
+        m_sendingArea->AutoSendingTimerSet(false);
+    }
+
     switch (m_portType)
     {
     case PORT_TYPE_SERIAL:
         if (m_serial->isOpen())
         {
-            if (m_sendingArea->AutoSendingStatusGet())
-            {
-                //如果定时发送的定时器已经start，则stop
-                m_sendingArea->AutoSendingTimerSet(false);
-            }
             m_serial->close();
         }
         ShowStatusMessage(tr("Disconnected"));
@@ -647,11 +648,6 @@ void MainInterface::ClosePort(void)
     case PORT_TYPE_TCPCLIENT:
         if (m_tcpClientPort->SocketIsValid())
         {
-            if (m_sendingArea->AutoSendingStatusGet())
-            {
-                //如果定时发送的定时器已经start，则stop
-                m_sendingArea->AutoSendingTimerSet(false);
-            }
             m_tcpClientPort->SocketDisConnect();
         }
         ShowStatusMessage(tr("Disconnected"));

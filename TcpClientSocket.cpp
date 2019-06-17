@@ -3,6 +3,7 @@
 TcpClientSocket::TcpClientSocket()
 {
     m_socket = new QTcpSocket(this);
+    m_initiativeDisconnect = false;
 
     connect(m_socket,SIGNAL(connected()),this,SLOT(TcpClientConnectedSlot()));
     connect(m_socket,SIGNAL(disconnected()),this,SLOT(TcpClientDisconnectedSlot()));
@@ -16,13 +17,14 @@ TcpClientSocket::~TcpClientSocket()
 
 bool TcpClientSocket::SocketConnect()
 {
-    m_socket->bind(m_localIp, m_localPort);
+    //m_socket->bind(m_localIp, m_localPort);  //客户端一般不绑定端口
     m_socket->connectToHost(m_oppositeIp, m_oppositePort);
     return true;
 }
 
 void TcpClientSocket::SocketDisConnect()
 {
+    m_initiativeDisconnect = true;
     if (m_connectState)
     {
         //m_socket->disconnectFromHost();     //不会立即关闭
@@ -44,7 +46,14 @@ void TcpClientSocket::TcpClientConnectedSlot()
 void TcpClientSocket::TcpClientDisconnectedSlot()
 {
     m_connectState = false;
-    Disconnect();
+    if (!m_initiativeDisconnect)
+    {
+        Disconnect();
+    }
+    else
+    {
+        m_initiativeDisconnect = false;
+    }
 }
 
 void TcpClientSocket::TcpClientSocketReadDtatSlot()
