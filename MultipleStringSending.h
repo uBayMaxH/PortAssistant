@@ -34,6 +34,7 @@ private slots:
     void CycleCheckBoxClicked(bool state);
     void HexCheckBoxClicked(bool state);
     void SendButtonClicked(void);
+    void ResetButtonClicked(void);
     void AutoSendingSlot(void);
 
 private:

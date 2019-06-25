@@ -203,16 +203,17 @@ void SendingArea::HexSendingSettings(bool status)
     {
         QString str = m_sendingUi->sendingTextEdit->toPlainText();
         m_sendingUi->sendingTextEdit->clear();
-        QByteArray data = str.toLatin1();
+        QByteArray data = m_codeConverter->fromUnicode(str);
+        CommonTools::CharacterEscapeProcess(&data);
         QString tempstr = CommonTools::ByteArrayToHexString(data);
         m_sendingUi->sendingTextEdit->append(tempstr);
     }
     else
     {
-        QString str = m_sendingUi->sendingTextEdit->toPlainText();
+
+        QByteArray tmpArray = CommonTools::HexStringToByteArray(m_sendingUi->sendingTextEdit->toPlainText());
         m_sendingUi->sendingTextEdit->clear();
-        QByteArray data = CommonTools::HexStringToByteArray(str);
-        QString tempstr = m_codeConverter->toUnicode(data);
+        QString tempstr = m_codeConverter->toUnicode(CommonTools::HexEscapeProcess(&tmpArray));
         m_sendingUi->sendingTextEdit->append(tempstr);
     }
 }

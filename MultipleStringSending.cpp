@@ -30,6 +30,7 @@ MultipleStringSending::MultipleStringSending(QWidget *parent, SendingArea *sendI
     connect(m_mulStrUi->cycleCheckBox, SIGNAL(clicked(bool)), this, SLOT(CycleCheckBoxClicked(bool)));
     connect(m_mulStrUi->hexCheckBox, SIGNAL(clicked(bool)), this, SLOT(HexCheckBoxClicked(bool)));
     connect(m_mulStrUi->sendButton, SIGNAL(clicked()), this, SLOT(SendButtonClicked()));
+    connect(m_mulStrUi->resetButton, SIGNAL(clicked()), this, SLOT(ResetButtonClicked()));
     connect(m_cycleTimer,SIGNAL(timeout()),this,SLOT(AutoSendingSlot()));
 }
 
@@ -129,6 +130,16 @@ void MultipleStringSending::SendButtonClicked(void)
     {
         Send();
     }
+}
+
+void MultipleStringSending::ResetButtonClicked(void)
+{
+    //将红色字体变为黑色
+    QPalette palette;
+    palette.setColor(QPalette::Text,Qt::black);
+    m_sendLineEdit[m_lastSendClauses]->setPalette(palette);
+
+    m_curSendClauses = 0;
 }
 
 void MultipleStringSending::AutoSendingSlot(void)

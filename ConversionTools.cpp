@@ -179,11 +179,13 @@ void ConversionTools::HexToAscBtnClickedSlot()
         return;
     }
     m_output->clear();
-    QString str1 = m_codeConverter->toUnicode(CommonTools::HexStringToByteArray(m_input1->toPlainText()));
+    QByteArray tmpArray1 = CommonTools::HexStringToByteArray(m_input1->toPlainText());
+    QString str1 = m_codeConverter->toUnicode(CommonTools::HexEscapeProcess(&tmpArray1));
     m_output->append("输入区1的ASCII格式输出为：");
     m_output->append(str1);
     m_output->append("");
-    QString str2 = m_codeConverter->toUnicode(CommonTools::HexStringToByteArray(m_input2->toPlainText()));
+    QByteArray tmpArray2 = CommonTools::HexStringToByteArray(m_input2->toPlainText());
+    QString str2 = m_codeConverter->toUnicode(CommonTools::HexEscapeProcess(&tmpArray2));
     m_output->append("输入区2的ASCII格式输出为：");
     m_output->append(str2);
 }
@@ -195,8 +197,14 @@ void ConversionTools::AscToHexBtnClickedSlot()
         QMessageBox::warning(this, tr("提示"), tr("请将输入格式转换为Ascii"));
         return;
     }
-    QString str1 = CommonTools::ByteArrayToHexString(m_input1->toPlainText().toLatin1());
-    QString str2 = CommonTools::ByteArrayToHexString(m_input2->toPlainText().toLatin1());
+
+    QByteArray data1 = m_codeConverter->fromUnicode(m_input1->toPlainText());
+    CommonTools::CharacterEscapeProcess(&data1);
+    QString str1 = CommonTools::ByteArrayToHexString(data1);
+
+    QByteArray data2 = m_codeConverter->fromUnicode(m_input1->toPlainText());
+    CommonTools::CharacterEscapeProcess(&data2);
+    QString str2 = CommonTools::ByteArrayToHexString(data2);
 
     m_output->clear();
     m_output->append("输入区1的16进制格式输出为：");

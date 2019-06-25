@@ -137,7 +137,7 @@ public:
         else return (0);
     }
 
-    /*转义字符处理函数*/
+    /*转义字符处理函数(asicc转hex)*/
     static void CharacterEscapeProcess(QByteArray *sourceByteArray)
     {
         for (int i = 0; i < sourceByteArray->size(); i++)
@@ -203,6 +203,71 @@ public:
                 }
             }
         }
+    }
+
+    /*转义字符处理函数(hex转ascii)*/
+    static QByteArray HexEscapeProcess(QByteArray *sourceByteArray)
+    {
+        QByteArray tmpArray;
+
+        for (int i = 0; i < sourceByteArray->size(); i++)
+        {
+            switch (sourceByteArray->at(i))
+            {
+            case 0x07:
+                tmpArray.append(0x5c);
+                tmpArray.append('a');
+                break;
+            case 0x08:
+                tmpArray.append(0x5c);
+                tmpArray.append('b');
+                break;
+            case 0x0c:
+                tmpArray.append(0x5c);
+                tmpArray.append('f');
+                break;
+            case 0x0a:
+                tmpArray.append(0x5c);
+                tmpArray.append('n');
+                break;
+            case 0x0d:
+                tmpArray.append(0x5c);
+                tmpArray.append('r');
+                break;
+            case 0x09:
+                tmpArray.append(0x5c);
+                tmpArray.append('t');
+                break;
+            case 0x0b:
+                tmpArray.append(0x5c);
+                tmpArray.append('v');
+                break;
+            case 0x5c:
+                tmpArray.append(0x5c);
+                tmpArray.append(0x5c);
+                break;
+            case 0x27:
+                tmpArray.append(0x5c);
+                tmpArray.append('`');
+                break;
+            case 0x22:
+                tmpArray.append(0x5c);
+                tmpArray.append('"');
+                break;
+            case 0x3f:
+                tmpArray.append(0x5c);
+                tmpArray.append('?');
+                break;
+            case 0x00:
+                tmpArray.append(0x5c);
+                tmpArray.append('0');
+                break;
+            default:
+                tmpArray.append(sourceByteArray->at(i));
+                break;
+            }
+        }
+        return tmpArray;
     }
 
 };
