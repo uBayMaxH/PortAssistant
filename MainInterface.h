@@ -23,7 +23,6 @@
 #include "UdpSocket.h"
 #include "TcpClientSocket.h"
 #include "TcpServerSocket.h"
-#include "Help.h"
 
 typedef enum
 {
@@ -121,7 +120,6 @@ private:
     TcpClientSocket *m_tcpClientPort;
     TcpServerSocket *m_tcpServerPort;
 
-    Help            *m_help;
     /*状态栏*/
     QPushButton *m_statusBarButton = nullptr;
     QLabelEx    *m_sendCntLabel = nullptr;

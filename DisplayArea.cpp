@@ -195,6 +195,21 @@ bool DisplayArea::PauseDisplayGet(void)
     return m_pauseDisplay;
 }
 
+void DisplayArea::HelpInfo(void)
+{
+    //清空显示区
+    Clear();
+    append(QString("%1").arg("1、本工具支持串口调试、网口调试、数据转换、编码转换、数据校验、多字符串发送等常用功能"));
+    append(QString("%1").arg(""));
+    append(QString("%1").arg("2、支持16进制和Ascii两种方式发送和接收数据，支持发送文件和保存接收数据到指定文件，支持显示接收时间"));
+    append(QString("%1").arg(""));
+    append(QString("%1").arg("3、支持自定义接收区的背景颜色、字体颜色、字体大小"));
+    append(QString("%1").arg(""));
+    append(QString("%1").arg("4、双击接收或发送计数器可清零，双击接收区可暂停接收"));
+    append(QString("%1").arg(""));
+    append(QString("%1").arg("5、发送区可通过\">>\"按钮显示或隐藏"));
+}
+
 void DisplayArea::Clear(void)
 {
     clear();

@@ -40,6 +40,7 @@ public :
     bool HexDisplayGet(void);
     void PauseDisplaySettings(bool status);
     bool PauseDisplayGet(void);
+    void HelpInfo(void);
 
 public slots:
     void Clear(void);

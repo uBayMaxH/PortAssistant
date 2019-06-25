@@ -50,8 +50,7 @@ SOURCES += \
     UdpSocket.cpp \
     TcpClientSocket.cpp \
     TcpServerSocket.cpp \
-    SocketBase.cpp \
-    Help.cpp
+    SocketBase.cpp
 
 HEADERS += \
         MainInterface.h \
@@ -69,8 +68,7 @@ HEADERS += \
     UdpSocket.h \
     TcpClientSocket.h \
     TcpServerSocket.h \
-    SocketBase.h \
-    Help.h
+    SocketBase.h
 
 FORMS += \
         MainInterface.ui \
@@ -79,8 +77,7 @@ FORMS += \
     MultipleStringSending.ui \
     ConversionTools.ui \
     CheckTools.ui \
-    NetPortSettings.ui \
-    Help.ui
+    NetPortSettings.ui
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin

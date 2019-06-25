@@ -21,7 +21,6 @@ MainInterface::MainInterface(QWidget *parent) :
     m_udpPort(new UdpSocket),
     m_tcpClientPort(new TcpClientSocket),
     m_tcpServerPort(new TcpServerSocket),
-    m_help(new Help),
     m_menuBar(new QMenuBar),
     m_toolBar(new QToolBar),
     m_statusBar(new QStatusBar)
@@ -508,7 +507,7 @@ void MainInterface::TrigerMenuSlot(QAction *action)
     }
     else if (action->text() == "帮助")
     {
-        m_help->show();
+        m_displayArea->HelpInfo();
     }
 }
 
