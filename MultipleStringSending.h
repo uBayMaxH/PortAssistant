@@ -25,10 +25,14 @@ public:
     ~MultipleStringSending();
 
     bool CycleSendStateGet();
+    void CycleSendStateReset();
     void CycleTimerSet(bool state);
 
 private:
     void Send(void);
+
+protected:
+    void closeEvent(QCloseEvent *event);
 
 private slots:
     void CycleCheckBoxClicked(bool state);
@@ -36,6 +40,7 @@ private slots:
     void SendButtonClicked(void);
     void ResetButtonClicked(void);
     void AutoSendingSlot(void);
+
 
 private:
     Ui::MultipleStringSending *m_mulStrUi;

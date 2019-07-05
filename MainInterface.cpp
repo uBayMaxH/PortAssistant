@@ -702,6 +702,10 @@ void MainInterface::WriteData(const QByteArray &data)
             {
                 m_sendingArea->SendingFileTimeSet(false);
             }
+            if (m_mulStrSending->CycleSendStateGet())
+            {
+                m_mulStrSending->CycleSendStateReset();
+            }
             return;
         }
         m_serial->write(data);

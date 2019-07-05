@@ -44,6 +44,21 @@ bool MultipleStringSending::CycleSendStateGet()
     return m_cycleSend;
 }
 
+void MultipleStringSending::CycleSendStateReset()
+{
+    if (m_cycleTimer->isActive())
+    {
+        m_cycleTimer->stop();
+        //将红色字体变为黑色
+        QPalette palette;
+        palette.setColor(QPalette::Text,Qt::black);
+        m_sendLineEdit[m_lastSendClauses]->setPalette(palette);
+
+        m_curSendClauses = 0;
+        m_mulStrUi->sendButton->setText("Send");
+    }
+}
+
 void MultipleStringSending::CycleTimerSet(bool state)
 {
     m_cycleSend = state;
@@ -104,6 +119,22 @@ void MultipleStringSending::Send(void)
         goto CYCSTART;
     }
     m_curSendClauses = ++sendClauses;
+}
+
+void MultipleStringSending::closeEvent(QCloseEvent *event)
+{
+    (void)event;
+    if (m_cycleTimer->isActive())
+    {
+        m_cycleTimer->stop();
+    }
+    //将红色字体变为黑色
+    QPalette palette;
+    palette.setColor(QPalette::Text,Qt::black);
+    m_sendLineEdit[m_lastSendClauses]->setPalette(palette);
+
+    m_curSendClauses = 0;
+    m_mulStrUi->sendButton->setText("Send");
 }
 
 void MultipleStringSending::CycleCheckBoxClicked(bool state)
