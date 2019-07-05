@@ -55,6 +55,7 @@ void MultipleStringSending::CycleSendStateReset()
         m_sendLineEdit[m_lastSendClauses]->setPalette(palette);
 
         m_curSendClauses = 0;
+        m_sendClausesReset = true;
         m_mulStrUi->sendButton->setText("Send");
     }
 }
@@ -107,18 +108,26 @@ void MultipleStringSending::Send(void)
                 CommonTools::CharacterEscapeProcess(&sendData); //转义处理
             }
             m_sendInstance->SendingCntSettings(sendData.size());
+            m_lastSendClauses = sendClauses;
             //发送(发送数据)信号
             m_sendInstance->SendingDatas(sendData);
-            m_lastSendClauses = sendClauses;
+
             break;
         }
     }
-    if (sendClauses >= SEND_CLAUSES_MAX)
+    if (!m_sendClausesReset)
     {
-        m_curSendClauses = 0;
-        goto CYCSTART;
+        if (sendClauses >= SEND_CLAUSES_MAX)
+        {
+            m_curSendClauses = 0;
+            goto CYCSTART;
+        }
+        m_curSendClauses = ++sendClauses;
     }
-    m_curSendClauses = ++sendClauses;
+    else
+    {
+        m_sendClausesReset = false;
+    }
 }
 
 void MultipleStringSending::closeEvent(QCloseEvent *event)

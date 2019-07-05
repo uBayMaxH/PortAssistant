@@ -58,6 +58,7 @@ private:
     QTimer              *m_cycleTimer = nullptr;
     qint8               m_curSendClauses = 0;
     qint8               m_lastSendClauses = 0;
+    bool                m_sendClausesReset = false;
 };
 
 #endif // MULTIPLESTRINGSENDING_H
