@@ -124,7 +124,16 @@ void MultipleStringSending::SendButtonClicked(void)
 {
     if (m_cycleSend)
     {
-        m_cycleTimer->start(m_mulStrUi->intervalLineEdit->text().toInt());
+        if (!m_cycleTimer->isActive())
+        {
+            m_cycleTimer->start(m_mulStrUi->intervalLineEdit->text().toInt());
+            m_mulStrUi->sendButton->setText("Stop");
+        }
+        else
+        {
+            m_cycleTimer->stop();
+            m_mulStrUi->sendButton->setText("Send");
+        }
     }
     else
     {
