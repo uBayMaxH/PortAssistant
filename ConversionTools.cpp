@@ -70,15 +70,29 @@ void ConversionTools::CharacterNumBtnClickedSlot()
     m_output->clear();
     if (m_hexStatus)
     {
-        m_output->append(QString("输入区1的字节数为：%1").arg(CommonTools::HexStringToByteArray(m_input1->toPlainText()).size()));
-        m_output->append("");
-        m_output->append(QString("输入区2的字节数为：%1").arg(CommonTools::HexStringToByteArray(m_input2->toPlainText()).size()));
+        if (m_input1->toPlainText().size() > 0)
+        {
+            m_output->append(QString("输入区1的字节数为：%1").arg(CommonTools::HexStringToByteArray(m_input1->toPlainText()).size()));
+        }
+
+        if (m_input2->toPlainText().size() > 0)
+        {
+            m_output->append("");
+            m_output->append(QString("输入区2的字节数为：%1").arg(CommonTools::HexStringToByteArray(m_input2->toPlainText()).size()));
+        }
     }
     else
     {
-        m_output->append(QString("输入区1的字符个数为：%1").arg(m_input1->toPlainText().size()));
-        m_output->append("");
-        m_output->append(QString("输入区2的字符个数为：%1").arg(m_input2->toPlainText().size()));
+        if (m_input1->toPlainText().size() > 0)
+        {
+            m_output->append(QString("输入区1的字符个数为：%1").arg(m_input1->toPlainText().size()));
+        }
+
+        if (m_input2->toPlainText().size() > 0)
+        {
+            m_output->append("");
+            m_output->append(QString("输入区2的字符个数为：%1").arg(m_input2->toPlainText().size()));
+        }
     }
 }
 
@@ -123,33 +137,42 @@ void ConversionTools::HexToDecBtnClickedSlot()
         QMessageBox::warning(this, tr("提示"), tr("请将输入格式转换为Hex"));
         return;
     }
-    QByteArray inputData1 = CommonTools::HexStringToByteArray(m_input1->toPlainText());
-    QByteArray inputData2 = CommonTools::HexStringToByteArray(m_input2->toPlainText());
+
     char decBuf[BUF_MAX] = "";
     char tmpBuf[10] = "";
-
-    m_output->clear();
-    m_output->append("输入区1的10进制格式为：");
-
-    for (int i = 0; i < inputData1.size(); i++)
+    if (m_input1->toPlainText().size() > 0)
     {
-        memset(tmpBuf, 0x00, 10);
-        sprintf(tmpBuf, "%d ", inputData1.at(i));
-        strcat(decBuf, tmpBuf);
+        QByteArray inputData1 = CommonTools::HexStringToByteArray(m_input1->toPlainText());
+
+        m_output->clear();
+        m_output->append("输入区1的10进制格式为：");
+
+        for (int i = 0; i < inputData1.size(); i++)
+        {
+            memset(tmpBuf, 0x00, 10);
+            sprintf(tmpBuf, "%d ", inputData1.at(i));
+            strcat(decBuf, tmpBuf);
+        }
+        m_output->append(QString(QLatin1String(decBuf)));
     }
-    m_output->append(QString(QLatin1String(decBuf)));
 
-    m_output->append("");
-
-    m_output->append("输入区2的10进制格式为：");
-    memset(decBuf, 0x00, BUF_MAX);
-    for (int i = 0; i < inputData2.size(); i++)
+    if (m_input2->toPlainText().size() > 0)
     {
-        memset(tmpBuf, 0x00, 10);
-        sprintf(tmpBuf, "%d ", inputData2.at(i));
-        strcat(decBuf, tmpBuf);
+        QByteArray inputData2 = CommonTools::HexStringToByteArray(m_input2->toPlainText());
+
+        m_output->append("");
+
+        m_output->append("输入区2的10进制格式为：");
+        memset(decBuf, 0x00, BUF_MAX);
+        for (int i = 0; i < inputData2.size(); i++)
+        {
+            memset(tmpBuf, 0x00, 10);
+            sprintf(tmpBuf, "%d ", inputData2.at(i));
+            strcat(decBuf, tmpBuf);
+        }
+        m_output->append(QString(QLatin1String(decBuf)));
     }
-    m_output->append(QString(QLatin1String(decBuf)));
+
 }
 
 void ConversionTools::DecToHexBtnClickedSlot()
@@ -160,15 +183,25 @@ void ConversionTools::DecToHexBtnClickedSlot()
         return;
     }
     m_output->clear();
-    long num = m_input1->toPlainText().toLong();
+
+    long num = 0;
     char tmpBuf[20] = "";
-    sprintf(tmpBuf, "%lX", num);
-    m_output->append(QString("输入区1转换后的结果为：%1").arg(tmpBuf));
-    m_output->append("");
-    num = m_input2->toPlainText().toLong();
-    memset(tmpBuf, 0x00 ,20);
-    sprintf(tmpBuf, "%lX", num);
-    m_output->append(QString("输入区2转换后的结果为：%1").arg(tmpBuf));
+    if (m_input1->toPlainText().size() > 0)
+    {
+        num = m_input1->toPlainText().toLong();
+        char tmpBuf[20] = "";
+        sprintf(tmpBuf, "%lX", num);
+        m_output->append(QString("输入区1转换后的结果为：%1").arg(tmpBuf));
+    }
+
+    if (m_input2->toPlainText().size() > 0)
+    {
+        m_output->append("");
+        num = m_input2->toPlainText().toLong();
+        memset(tmpBuf, 0x00 ,20);
+        sprintf(tmpBuf, "%lX", num);
+        m_output->append(QString("输入区2转换后的结果为：%1").arg(tmpBuf));
+    }
 }
 
 void ConversionTools::HexToAscBtnClickedSlot()
@@ -178,16 +211,23 @@ void ConversionTools::HexToAscBtnClickedSlot()
         QMessageBox::warning(this, tr("提示"), tr("请将输入格式转换为Hex"));
         return;
     }
-    m_output->clear();
-    QByteArray tmpArray1 = CommonTools::HexStringToByteArray(m_input1->toPlainText());
-    QString str1 = m_codeConverter->toUnicode(CommonTools::HexEscapeProcess(&tmpArray1));
-    m_output->append("输入区1的ASCII格式输出为：");
-    m_output->append(str1);
-    m_output->append("");
-    QByteArray tmpArray2 = CommonTools::HexStringToByteArray(m_input2->toPlainText());
-    QString str2 = m_codeConverter->toUnicode(CommonTools::HexEscapeProcess(&tmpArray2));
-    m_output->append("输入区2的ASCII格式输出为：");
-    m_output->append(str2);
+    if (m_input1->toPlainText().size() > 0)
+    {
+        m_output->clear();
+        QByteArray tmpArray1 = CommonTools::HexStringToByteArray(m_input1->toPlainText());
+        QString str1 = m_codeConverter->toUnicode(CommonTools::HexEscapeProcess(&tmpArray1));
+        m_output->append("输入区1的ASCII格式输出为：");
+        m_output->append(str1);
+    }
+
+    if (m_input2->toPlainText().size() > 0)
+    {
+        m_output->append("");
+        QByteArray tmpArray2 = CommonTools::HexStringToByteArray(m_input2->toPlainText());
+        QString str2 = m_codeConverter->toUnicode(CommonTools::HexEscapeProcess(&tmpArray2));
+        m_output->append("输入区2的ASCII格式输出为：");
+        m_output->append(str2);
+    }
 }
 
 void ConversionTools::AscToHexBtnClickedSlot()
@@ -198,20 +238,26 @@ void ConversionTools::AscToHexBtnClickedSlot()
         return;
     }
 
-    QByteArray data1 = m_codeConverter->fromUnicode(m_input1->toPlainText());
-    CommonTools::CharacterEscapeProcess(&data1);
-    QString str1 = CommonTools::ByteArrayToHexString(data1);
-
-    QByteArray data2 = m_codeConverter->fromUnicode(m_input1->toPlainText());
-    CommonTools::CharacterEscapeProcess(&data2);
-    QString str2 = CommonTools::ByteArrayToHexString(data2);
-
     m_output->clear();
-    m_output->append("输入区1的16进制格式输出为：");
-    m_output->append(str1);
-    m_output->append("");
-    m_output->append("输入区2的16进制格式输出为：");
-    m_output->append(str2);
+    if (m_input1->toPlainText().size() > 0)
+    {
+        QByteArray data1 = m_codeConverter->fromUnicode(m_input1->toPlainText());
+        CommonTools::CharacterEscapeProcess(&data1);
+        QString str1 = CommonTools::ByteArrayToHexString(data1);
+        m_output->append("输入区1的16进制格式输出为：");
+        m_output->append(str1);
+    }
+
+    if (m_input2->toPlainText().size() > 0)
+    {
+        QByteArray data2 = m_codeConverter->fromUnicode(m_input2->toPlainText());
+        CommonTools::CharacterEscapeProcess(&data2);
+        QString str2 = CommonTools::ByteArrayToHexString(data2);
+
+        m_output->append("");
+        m_output->append("输入区2的16进制格式输出为：");
+        m_output->append(str2);
+    }
 }
 
 typedef  union
@@ -384,11 +430,18 @@ void ConversionTools::BitwiseNotBtnClickedSlot()
         arr2[i] = ~arr2[i];
     }
     m_output->clear();
-    m_output->append("输入区1按位取反结果为：");
-    m_output->append(CommonTools::ByteArrayToHexString(arr1));
-    m_output->append("");
-    m_output->append("输入区2按位取反结果为：");
-    m_output->append(CommonTools::ByteArrayToHexString(arr2));
+    if (arr1.size() > 0)
+    {
+        m_output->append("输入区1按位取反结果为：");
+        m_output->append(CommonTools::ByteArrayToHexString(arr1));
+    }
+    if (arr2.size() > 0)
+    {
+        m_output->append("");
+        m_output->append("输入区2按位取反结果为：");
+        m_output->append(CommonTools::ByteArrayToHexString(arr2));
+    }
+
 }
 
 void ConversionTools::ToUpperBtnClickedSlot()
@@ -401,11 +454,18 @@ void ConversionTools::ToUpperBtnClickedSlot()
     QString str1 = m_input1->toPlainText().toUpper();
     QString str2 = m_input2->toPlainText().toUpper();
     m_output->clear();
-    m_output->append("输入区1转换为大写为：");
-    m_output->append(str1);
-    m_output->append("");
-    m_output->append("输入区2转换为大写为：");
-    m_output->append(str2);
+
+    if (str1.size() > 0)
+    {
+        m_output->append("输入区1转换为大写为：");
+        m_output->append(str1);
+    }
+    if (str2.size() > 0)
+    {
+        m_output->append("");
+        m_output->append("输入区2转换为大写为：");
+        m_output->append(str2);
+    }
 }
 
 void ConversionTools::ToLowerBtnClickedSlot()
@@ -418,11 +478,18 @@ void ConversionTools::ToLowerBtnClickedSlot()
     QString str1 = m_input1->toPlainText().toLower();
     QString str2 = m_input2->toPlainText().toLower();
     m_output->clear();
-    m_output->append("输入区1转换为大写为：");
-    m_output->append(str1);
-    m_output->append("");
-    m_output->append("输入区2转换为大写为：");
-    m_output->append(str2);
+
+    if (str1.size() > 0)
+    {
+        m_output->append("输入区1转换为大写为：");
+        m_output->append(str1);
+    }
+    if (str2.size() > 0)
+    {
+        m_output->append("");
+        m_output->append("输入区2转换为大写为：");
+        m_output->append(str2);
+    }
 }
 
 void ConversionTools::ToOppositeBtnClickedSlot()
@@ -486,11 +553,17 @@ void ConversionTools::InversionBtnClickedSlot()
         str2 = m_codeConverter->toUnicode(arr2);
     }
     m_output->clear();
-    m_output->append("输入区1字符串反转为：");
-    m_output->append(str1);
-    m_output->append("");
-    m_output->append("输入区2字符串反转为：");
-    m_output->append(str2);
+    if (str1.size() > 0)
+    {
+        m_output->append("输入区1字符串反转为：");
+        m_output->append(str1);
+    }
+    if(str2.size() > 0)
+    {
+        m_output->append("");
+        m_output->append("输入区2字符串反转为：");
+        m_output->append(str2);
+    }
 }
 
 void ConversionTools::GbkToChBtnClickedSlot()
