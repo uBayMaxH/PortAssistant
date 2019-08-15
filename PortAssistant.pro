@@ -50,7 +50,8 @@ SOURCES += \
     UdpSocket.cpp \
     TcpClientSocket.cpp \
     TcpServerSocket.cpp \
-    SocketBase.cpp
+    SocketBase.cpp \
+    JsonOperate.cpp
 
 HEADERS += \
         MainInterface.h \
@@ -68,7 +69,8 @@ HEADERS += \
     UdpSocket.h \
     TcpClientSocket.h \
     TcpServerSocket.h \
-    SocketBase.h
+    SocketBase.h \
+    JsonOperate.h
 
 FORMS += \
         MainInterface.ui \

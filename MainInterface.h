@@ -23,6 +23,7 @@
 #include "UdpSocket.h"
 #include "TcpClientSocket.h"
 #include "TcpServerSocket.h"
+#include "JsonOperate.h"
 
 typedef enum
 {
@@ -149,6 +150,9 @@ private:
     /*校验工具*/
     CheckTools              *m_checkTool = nullptr;
 
+    /*JSON*/
+    JsonOperate             *m_json = nullptr;
+    QJsonObject             m_jsonObject;
 };
 
 #endif // MAININTERFACE_H

@@ -27,7 +27,9 @@ MainInterface::MainInterface(QWidget *parent) :
 {
     m_mainUi->setupUi(this);
     setAttribute(Qt::WA_QuitOnClose, true); //设置窗口参数 Qt::WA_QuitOnClose attribute,为true 的所有窗口关闭后程序退出
-
+    /*读取配置文件*/
+    m_json = new JsonOperate("PortAssistant.jsn");
+    m_jsonObject = JsonOperate::JsonGetObject(m_json->JsonObjectGet(), "GLOBAL_CONFIG");
     MenuInit();
     ToolBarInit();
     DisplayAndSendAreaInit();
@@ -40,6 +42,7 @@ MainInterface::MainInterface(QWidget *parent) :
     m_uiLayout->addWidget(m_toolBar);
     m_uiLayout->addLayout(m_displayAndSendLayout);
     m_uiLayout->addWidget(m_statusBar);
+
     /*串口*/
     connect(m_serial, &QSerialPort::readyRead, this, &MainInterface::ReadPortData);
     connect(m_sendingArea, &SendingArea::SendingDatas, this, &MainInterface::WriteData);
@@ -64,6 +67,16 @@ MainInterface::~MainInterface()
 
 void MainInterface::MenuInit(void)
 {
+    QJsonObject rJsonObject{};
+    QJsonObject sJsonObject{};
+    if (JsonOperate::JsonContains(m_jsonObject, "RECEIVE_SET"))
+    {
+        rJsonObject = JsonOperate::JsonGetValue(m_jsonObject, "RECEIVE_SET").toObject();
+    }
+    if (JsonOperate::JsonContains(m_jsonObject, "SEND_SET"))
+    {
+        sJsonObject = JsonOperate::JsonGetValue(m_jsonObject, "SEND_SET").toObject();
+    }
     //端口选择
     m_menu[MENU_PORT_SELECT] = new QMenu("端口选择(&O)");   //&O表示有Alt + O的快捷键
     m_action[MENU_PORT_SELECT][0] = new QAction("UDP", this);
@@ -120,10 +133,30 @@ void MainInterface::MenuInit(void)
     m_action[MENU_RECEIVE_SETTINGS][1] = new QAction("十六进制接收", this);
     m_action[MENU_RECEIVE_SETTINGS][1]->setCheckable(true);      //设置checkbox
     m_menu[MENU_RECEIVE_SETTINGS]->addAction(m_action[MENU_RECEIVE_SETTINGS][1]);
+    //获取配置文件中的状态
+    if (JsonOperate::JsonContains(rJsonObject, "HEX"))
+    {
+        QJsonValue hexValue = JsonOperate::JsonGetValue(rJsonObject, "HEX");
+        if (hexValue.isBool())
+        {
+            m_action[MENU_RECEIVE_SETTINGS][1]->setChecked(hexValue.toBool());
+            m_displayArea->HexDisplaySettings(hexValue.toBool());
+        }
+    }
 
     m_action[MENU_RECEIVE_SETTINGS][2] = new QAction("显示时间戳", this);
     m_action[MENU_RECEIVE_SETTINGS][2]->setCheckable(true);      //设置checkbox
     m_menu[MENU_RECEIVE_SETTINGS]->addAction(m_action[MENU_RECEIVE_SETTINGS][2]);
+    //获取配置文件中的状态
+    if (JsonOperate::JsonContains(rJsonObject, "TIME"))
+    {
+        QJsonValue timeValue = JsonOperate::JsonGetValue(rJsonObject, "TIME");
+        if (timeValue.isBool())
+        {
+            m_action[MENU_RECEIVE_SETTINGS][2]->setChecked(timeValue.toBool());
+            m_displayArea->DisplayTimeSettings(timeValue.toBool());
+        }
+    }
 
     m_action[MENU_RECEIVE_SETTINGS][3] = new QAction("接收数据到文件", this);
     m_action[MENU_RECEIVE_SETTINGS][3]->setCheckable(true);      //设置checkbox
@@ -134,6 +167,16 @@ void MainInterface::MenuInit(void)
     m_action[MENU_SENDING_SETTINGS][0] = new QAction("十六进制发送", this);
     m_action[MENU_SENDING_SETTINGS][0]->setCheckable(true);      //设置checkbox
     m_menu[MENU_SENDING_SETTINGS]->addAction(m_action[MENU_SENDING_SETTINGS][0]);
+    //获取配置文件中的状态
+    if (JsonOperate::JsonContains(sJsonObject, "HEX"))
+    {
+        QJsonValue value = JsonOperate::JsonGetValue(sJsonObject, "HEX");
+        if (value.isBool())
+        {
+            m_action[MENU_SENDING_SETTINGS][0]->setChecked(value.toBool());
+            m_sendingArea->HexSendingSettings(value.toBool());
+        }
+    }
 
     m_action[MENU_SENDING_SETTINGS][1] = new QAction("发送文件", this);
     m_action[MENU_SENDING_SETTINGS][1]->setCheckable(true);      //设置checkbox
@@ -456,10 +499,18 @@ void MainInterface::TrigerMenuSlot(QAction *action)
     else if (action->text() == "十六进制接收")
     {
         m_displayArea->HexDisplaySettings(action->isChecked());
+        QJsonObject receiveSetObj = JsonOperate::JsonGetObject(JsonOperate::JsonGetObject(m_json->JsonObjectGet(), "GLOBAL_CONFIG"), "RECEIVE_SET");
+        receiveSetObj.insert("HEX", action->isChecked());
+        JsonOperate::JsonAddItem(m_jsonObject, "RECEIVE_SET", QJsonValue(receiveSetObj));
+        m_json->WriteJson("GLOBAL_CONFIG", QJsonValue(m_jsonObject));
     }
     else if (action->text() == "显示时间戳")
     {
         m_displayArea->DisplayTimeSettings(action->isChecked());
+        QJsonObject receiveSetObj = JsonOperate::JsonGetObject(JsonOperate::JsonGetObject(m_json->JsonObjectGet(), "GLOBAL_CONFIG"), "RECEIVE_SET");
+        receiveSetObj.insert("TIME", action->isChecked());
+        JsonOperate::JsonAddItem(m_jsonObject, "RECEIVE_SET", QJsonValue(receiveSetObj));
+        m_json->WriteJson("GLOBAL_CONFIG", QJsonValue(m_jsonObject));
     }
     else if (action->text() == "接收数据到文件")
     {
@@ -471,6 +522,10 @@ void MainInterface::TrigerMenuSlot(QAction *action)
     else if (action->text() == "十六进制发送")
     {
         m_sendingArea->HexSendingSettings(action->isChecked());
+        QJsonObject sendSetObj = JsonOperate::JsonGetObject(JsonOperate::JsonGetObject(m_json->JsonObjectGet(), "GLOBAL_CONFIG"), "SEND_SET");
+        sendSetObj.insert("HEX", action->isChecked());
+        JsonOperate::JsonAddItem(m_jsonObject, "SEND_SET", QJsonValue(sendSetObj));
+        m_json->WriteJson("GLOBAL_CONFIG", QJsonValue(m_jsonObject));
     }
     else if (action->text() == "发送文件")
     {
