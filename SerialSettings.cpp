@@ -59,7 +59,7 @@
 
 static const char blankString[] = QT_TRANSLATE_NOOP("SerialSettings", "N/A");
 
-SerialSettings::SerialSettings(QWidget *parent) :
+SerialSettings::SerialSettings(QJsonObject obj, QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::SerialSettings),
     m_intValidator(new QIntValidator(0, 4000000, this))
@@ -69,6 +69,8 @@ SerialSettings::SerialSettings(QWidget *parent) :
     setWindowModality(Qt::ApplicationModal);
 
     m_ui->baudRateBox->setInsertPolicy(QComboBox::NoInsert);
+
+    m_jsonObject = obj;
 
     connect(m_ui->applyButton, &QPushButton::clicked,
             this, &SerialSettings::Apply);
@@ -209,6 +211,52 @@ void SerialSettings::FillPortsInfo()
     }
 
     m_ui->serialPortInfoListBox->addItem(tr("Custom"));
+    /*在此读取json配置文件并根据结果进行相应初始化*/
+    QString lastSerialName = m_jsonObject.value("LAST_SERIAL_NAME").toString();
+    bool existFlag = false;
+    for (int i = 0; i < m_ui->serialPortInfoListBox->count(); i++)
+    {
+        if (m_ui->serialPortInfoListBox->itemText(i) == lastSerialName)
+        {
+            m_ui->serialPortInfoListBox->setCurrentIndex(i);
+            existFlag = true;
+        }
+    }
+    if(existFlag)
+    {
+        if (JsonOperate::JsonContains(m_jsonObject, "SETTING_CFG"))
+        {
+            QJsonValue value = m_jsonObject.value("SETTING_CFG");
+            if (value.isArray())
+            {
+                QJsonArray array = value.toArray();
+                for (int i = 0; i < array.size(); i++)
+                {
+                    if (array.at(i).isObject())
+                    {
+                        QJsonObject obj = array.at(i).toObject();
+                        if ((obj.value("NAME").isString()) && (obj.value("NAME").toString() == lastSerialName))
+                        {
+                            bool existBaud = false;
+                            for (int i = 0; i < m_ui->baudRateBox->count(); i++)
+                            {
+                                if (m_ui->baudRateBox->itemText(i) == QString("%1").arg(obj.value("BAUD").toInt()))
+                                {
+                                    m_ui->baudRateBox->setCurrentIndex(i);
+                                    existBaud = true;
+                                }
+                            }
+                            if (!existBaud)
+                            {
+                                //自定义的波特率
+                                m_ui->baudRateBox->setCurrentText(QString("%1").arg(obj.value("BAUD").toInt()));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 void SerialSettings::SerialPortInfoGet(QStringList *list)

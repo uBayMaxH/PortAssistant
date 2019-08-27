@@ -15,7 +15,6 @@ MainInterface::MainInterface(QWidget *parent) :
     m_displayAndSendLayout(new QVBoxLayout),
     m_displayArea(new DisplayArea),
     m_sendingArea(new SendingArea),
-    m_serialSettings(new SerialSettings),
     m_serial(new QSerialPort(this)),
     m_netPortSettings(new NetPortSettings),
     m_udpPort(new UdpSocket),
@@ -30,6 +29,8 @@ MainInterface::MainInterface(QWidget *parent) :
     /*读取配置文件*/
     m_json = new JsonOperate("PortAssistant.jsn");
     m_jsonObject = JsonOperate::JsonGetObject(m_json->JsonObjectGet(), "GLOBAL_CONFIG");
+    m_serialSetObject = JsonOperate::JsonGetObject(m_json->JsonObjectGet(), "SERIAL_SETTING_CONFIG");
+    m_serialSettings = new SerialSettings(m_serialSetObject);
     MenuInit();
     ToolBarInit();
     DisplayAndSendAreaInit();
@@ -603,6 +604,57 @@ void MainInterface::OpenPort(void)
                 ShowStatusMessage(tr("Connected to %1 : %2  %3  %4  %5  %6")
                                   .arg(p.name).arg(p.stringBaudRate).arg(p.stringDataBits)
                                   .arg(p.stringParity).arg(p.stringStopBits).arg(p.stringFlowControl));
+                /*将最新连接信息保存到json配置文件中*/
+                if (JsonOperate::JsonContains(m_serialSetObject, "SETTING_CFG"))
+                {
+                    QJsonValue value = m_serialSetObject.value("SETTING_CFG");
+                    if (value.isArray())
+                    {
+                        bool addItemFlag = true;
+                        QJsonArray array = value.toArray();
+                        for (int i = 0; i < array.size(); i++)
+                        {
+                            if (array.at(i).isObject())
+                            {
+                                QJsonObject obj = array.at(i).toObject();
+                                if ((obj.value("NAME").isString()) && (obj.value("NAME").toString() == p.name))
+                                {
+                                    //如果名字相同，则替换
+                                    addItemFlag = false;
+                                    QJsonObject configObj;
+                                    configObj.insert("NAME", p.name);   //串口名
+                                    configObj.insert("BAUD", p.baudRate);    //波特率
+                                    array.replace(i, QJsonValue(configObj));
+                                }
+                            }
+                        }
+                        //删除名字为空的项
+                        for (int i = 0; i < array.size(); i++)
+                        {
+                            if (array.at(i).isObject())
+                            {
+                                QJsonObject obj = array.at(i).toObject();
+                                if ((obj.value("NAME").isString()) && (obj.value("NAME").toString() == ""))
+                                {
+                                    array.removeAt(i);
+                                }
+                            }
+                        }
+
+                        if (addItemFlag)
+                        {
+                            //如果没有名字相同的则增加
+                            QJsonObject configObj;
+                            configObj.insert("NAME", p.name);   //串口名
+                            configObj.insert("BAUD", p.baudRate);    //波特率
+                            array.append(QJsonValue(configObj));
+                        }
+
+                        m_serialSetObject.insert("LAST_SERIAL_NAME", p.name);
+                        m_serialSetObject.insert("SETTING_CFG", QJsonValue(array));
+                        m_json->WriteJson("SERIAL_SETTING_CONFIG", QJsonValue(m_serialSetObject));
+                    }
+                }
             }
             else
             {

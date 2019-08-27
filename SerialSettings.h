@@ -54,6 +54,7 @@
 
 #include <QDialog>
 #include <QSerialPort>
+#include "JsonOperate.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -84,7 +85,7 @@ public:
         QString stringFlowControl;
     };
 
-    explicit SerialSettings(QWidget *parent = nullptr);
+    SerialSettings(QJsonObject obj, QWidget *parent = nullptr);
     ~SerialSettings();
 
     Settings settings() const;
@@ -113,6 +114,8 @@ private:
     Ui::SerialSettings *m_ui = nullptr;
     Settings m_currentSettings;
     QIntValidator *m_intValidator = nullptr;
+
+    QJsonObject m_jsonObject;
 };
 
 #endif //

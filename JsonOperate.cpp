@@ -110,7 +110,15 @@ void JsonOperate::JsonFileInit()
     m_jsonObject.insert("SENDING_AREA_CONFIG", QJsonValue(sendingAreaObject));
 
     //构建SERIAL_SETTING_CONFIG
-    m_jsonObject.insert("SERIAL_SETTING_CONFIG", "");
+    QJsonArray setArray;
+    QJsonObject configObj;
+    configObj.insert("NAME", "");   //串口名
+    configObj.insert("BAUD", 0);    //波特率
+    setArray.append(QJsonValue(configObj));
+    QJsonObject serialSetObj;
+    serialSetObj.insert("LAST_SERIAL_NAME", "");
+    serialSetObj.insert("SETTING_CFG", QJsonValue(setArray));
+    m_jsonObject.insert("SERIAL_SETTING_CONFIG", QJsonValue(serialSetObj));
 
     //构建NET_SETTING_CONFIG
     m_jsonObject.insert("NET_SETTING_CONFIG", "");

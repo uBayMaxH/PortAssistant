@@ -152,7 +152,8 @@ private:
 
     /*JSON*/
     JsonOperate             *m_json = nullptr;
-    QJsonObject             m_jsonObject;
+    QJsonObject             m_jsonObject;           //GLOBAL
+    QJsonObject             m_serialSetObject;      //serial set
 };
 
 #endif // MAININTERFACE_H
