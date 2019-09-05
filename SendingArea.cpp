@@ -4,7 +4,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-SendingArea::SendingArea(QWidget *parent) :
+SendingArea::SendingArea(QJsonObject obj, QWidget *parent) :
     QFrame(parent),
     m_sendingUi(new Ui::SendingArea),
     m_clock(new QTimer),
@@ -24,6 +24,8 @@ SendingArea::SendingArea(QWidget *parent) :
     //this->setWindowFlags(Qt::FramelessWindowHint);      //设置窗体无边框，不可拖动拖拽拉伸
     //QPoint movePoint(100,300);
     //move(movePoint);
+
+    m_jsonObject = obj;
 
     m_sendingUi->setupUi(this);
     setLayout(m_sendingUi->sendLayout);
@@ -51,6 +53,9 @@ SendingArea::SendingArea(QWidget *parent) :
     connect(m_sendingUi->autoCheckBox, SIGNAL(clicked(bool)), this, SLOT(AutoSendingClickSlot(bool)));
 
     connect(m_autoSendingTimer,SIGNAL(timeout()),this,SLOT(AutoSendingSlot()));
+
+    //恢复关闭前json保存的发送内容
+    RecoverLastData();
 }
 
 SendingArea::~SendingArea()
@@ -134,6 +139,28 @@ void SendingArea::AutoSendingTimerSet(bool status)
     {
         m_autoSendingTimer->stop();
         m_sendingUi->autoCheckBox->setChecked(false);
+    }
+}
+
+QTextEdit* SendingArea::SendTextEditGet(void)
+{
+    return m_sendingUi->sendingTextEdit;
+}
+
+void SendingArea::RecoverLastData(void)
+{
+    if (JsonOperate::JsonContains(m_jsonObject, "SEND_STR"))
+    {
+        QJsonValue value = m_jsonObject.value("SEND_STR");
+        if (value.isString())
+        {
+            if (!value.toString().isNull())
+            {
+                m_sendDataLast = value.toString();
+                m_sendingUi->sendingTextEdit->clear();
+                m_sendingUi->sendingTextEdit->setText(m_sendDataLast);
+            }
+        }
     }
 }
 
@@ -415,4 +442,3 @@ void SendingArea::AutoSendingSlot(void)
 {
     ObtainSendingDatas();
 }
-

@@ -14,7 +14,6 @@ MainInterface::MainInterface(QWidget *parent) :
     m_uiLayout(new QVBoxLayout),
     m_displayAndSendLayout(new QVBoxLayout),
     m_displayArea(new DisplayArea),
-    m_sendingArea(new SendingArea),
     m_serial(new QSerialPort(this)),
     m_netPortSettings(new NetPortSettings),
     m_udpPort(new UdpSocket),
@@ -29,8 +28,13 @@ MainInterface::MainInterface(QWidget *parent) :
     /*读取配置文件*/
     m_json = new JsonOperate("PortAssistant.jsn");
     m_jsonObject = JsonOperate::JsonGetObject(m_json->JsonObjectGet(), "GLOBAL_CONFIG");
+
     m_serialSetObject = JsonOperate::JsonGetObject(m_json->JsonObjectGet(), "SERIAL_SETTING_CONFIG");
     m_serialSettings = new SerialSettings(m_serialSetObject);
+
+    m_sendingObject = JsonOperate::JsonGetObject(m_json->JsonObjectGet(), "SENDING_AREA_CONFIG");
+    m_sendingArea = new SendingArea(m_sendingObject);
+
     MenuInit();
     ToolBarInit();
     DisplayAndSendAreaInit();
@@ -59,6 +63,9 @@ MainInterface::MainInterface(QWidget *parent) :
     /*检测串口断开，可检测热插拔情况*/
     connect(m_serial,SIGNAL(error(QSerialPort::SerialPortError)),this,SLOT(SerialMonitor(QSerialPort::SerialPortError)));
     connect(m_tcpClientPort,SIGNAL(Disconnect()),this,SLOT(NetPortMonitor()));
+
+    //当发送区有改变的时候将发送内容存到json
+    connect(m_sendingArea->SendTextEditGet(), &QTextEdit::textChanged, this, &MainInterface::SendDatasChangedSolt);
 }
 
 MainInterface::~MainInterface()
@@ -175,7 +182,8 @@ void MainInterface::MenuInit(void)
         if (value.isBool())
         {
             m_action[MENU_SENDING_SETTINGS][0]->setChecked(value.toBool());
-            m_sendingArea->HexSendingSettings(value.toBool());
+            //启动的时候不需要转换发送区的内容
+            //m_sendingArea->HexSendingSettings(value.toBool());
         }
     }
 
@@ -951,4 +959,16 @@ void MainInterface::TCPServerOppositeAddrChanged(void)
 {
     ShowStatusMessage(tr("TcpServer Success:[local addr %1:%2]-[client addr %3:%4]").arg(m_tcpServerPort->LocalIpGet()).arg(m_tcpServerPort->LocalPortGet())
                       .arg(m_tcpServerPort->OppositeIpGet()).arg(m_tcpServerPort->OppositePortGet()));
+}
+
+void MainInterface::SendDatasChangedSolt(void)
+{
+    static QString lastSendData = "";
+    if(m_sendingArea->SendTextEditGet()->toPlainText() != lastSendData)
+    {
+        lastSendData = m_sendingArea->SendTextEditGet()->toPlainText();
+        /*将最新连接信息保存到json配置文件中*/
+        m_sendingObject.insert("SEND_STR", lastSendData);
+        m_json->WriteJson("SENDING_AREA_CONFIG", QJsonValue(m_sendingObject));
+    }
 }

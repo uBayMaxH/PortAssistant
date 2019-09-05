@@ -107,6 +107,7 @@ void JsonOperate::JsonFileInit()
     QJsonObject sendingAreaObject;
     sendingAreaObject.insert("TIMER", false);
     sendingAreaObject.insert("INTERVAL", 1000);
+    sendingAreaObject.insert("SEND_STR", "");
     m_jsonObject.insert("SENDING_AREA_CONFIG", QJsonValue(sendingAreaObject));
 
     //构建SERIAL_SETTING_CONFIG

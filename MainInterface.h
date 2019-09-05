@@ -101,6 +101,7 @@ private slots:
 
     void UDPClientChanged(void);
     void TCPServerOppositeAddrChanged(void);
+    void SendDatasChangedSolt(void);
 
 private:
     Ui::MainInterface *m_mainUi = nullptr;
@@ -154,6 +155,7 @@ private:
     JsonOperate             *m_json = nullptr;
     QJsonObject             m_jsonObject;           //GLOBAL
     QJsonObject             m_serialSetObject;      //serial set
+    QJsonObject             m_sendingObject;        //发送区
 };
 
 #endif // MAININTERFACE_H

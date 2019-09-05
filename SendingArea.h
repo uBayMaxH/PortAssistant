@@ -7,6 +7,8 @@
 #include <QTimer>
 #include <QTextStream>
 #include <QProgressBar>
+#include <QTextEdit>
+#include "JsonOperate.h"
 
 #define SEND_FILE_ONCE_LEN_MAX  255
 
@@ -19,7 +21,7 @@ class SendingArea : public QFrame
     Q_OBJECT
 
 public:
-    explicit SendingArea(QWidget *parent = nullptr);
+    explicit SendingArea(QJsonObject obj, QWidget *parent = nullptr);
     ~SendingArea();
 
 public:
@@ -40,10 +42,13 @@ public:
 
     bool AutoSendingStatusGet(void);
     void AutoSendingTimerSet(bool status);
+    QTextEdit *SendTextEditGet(void);
+
+private:
+    void RecoverLastData(void);
 
 signals:
     void SendingDatas(const QByteArray &data);
-
 
 private slots:
     void ClearButtonClickedSlot();
@@ -79,7 +84,7 @@ private:
 //    bool            m_mousePressed;         //鼠标按下标志（不分左右键）
 //    QPoint          m_pressPos;             //鼠标按下的初始位置
     bool            m_sendFileStatus;           //发送文件标志
-    QString         m_sendDir;                 //发送文件的路径
+    QString         m_sendDir = nullptr;                 //发送文件的路径
     QFile           *m_sendFile;
 //    QTextStream     *m_sendText;
 //    QByteArray      m_sendingData;
@@ -89,6 +94,9 @@ private:
     qint32          m_sentFileFrame;        //已发送的帧数
     qint16          m_offsetFrame;          //如果最后一帧不为SEND_FILE_ONCE_LEN_MAX，则其为最后一帧
     QProgressBar    *m_sendingprogress;     //发送文件进度条
+
+    QJsonObject     m_jsonObject;
+    QString         m_sendDataLast = nullptr;         //关闭前的上一次发送数据
 };
 
 #endif // SENDINGAREA_H

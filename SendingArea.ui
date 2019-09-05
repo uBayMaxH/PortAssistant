@@ -28,7 +28,7 @@
      <x>0</x>
      <y>0</y>
      <width>802</width>
-     <height>114</height>
+     <height>184</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="sendLayout">
@@ -144,23 +144,7 @@
      </layout>
     </item>
     <item>
-     <widget class="QTextEdit" name="sendingTextEdit">
-      <property name="minimumSize">
-       <size>
-        <width>800</width>
-        <height>75</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>75</height>
-       </size>
-      </property>
-      <property name="styleSheet">
-       <string notr="true"/>
-      </property>
-     </widget>
+     <widget class="QTextEdit" name="sendingTextEdit"/>
     </item>
    </layout>
   </widget>
