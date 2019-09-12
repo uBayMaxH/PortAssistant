@@ -76,11 +76,11 @@ SerialSettings::SerialSettings(QJsonObject obj, QWidget *parent) :
             this, &SerialSettings::Apply);
     connect(m_ui->refreshButton, &QPushButton::clicked,
             this, &SerialSettings::Refresh);
-    connect(m_ui->serialPortInfoListBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_ui->serialPortInfoListBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),/* QOverload<int>::of(&QComboBox::currentIndexChanged),*/
             this, &SerialSettings::ShowPortInfo);
-    connect(m_ui->baudRateBox,  QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_ui->baudRateBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), /*QOverload<int>::of(&QComboBox::currentIndexChanged),*/
             this, &SerialSettings::CheckCustomBaudRatePolicy);
-    connect(m_ui->serialPortInfoListBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_ui->serialPortInfoListBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), /*QOverload<int>::of(&QComboBox::currentIndexChanged),*/
             this, &SerialSettings::CheckCustomDevicePathPolicy);
 
     FillPortsParameters();

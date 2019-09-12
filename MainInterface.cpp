@@ -6,6 +6,8 @@
 #include <QMessageBox>
 #include <QColorDialog>
 #include <QFontDialog>
+#include <windows.h>
+#include <dbt.h>
 
 
 MainInterface::MainInterface(QWidget *parent) :
@@ -71,6 +73,44 @@ MainInterface::MainInterface(QWidget *parent) :
 MainInterface::~MainInterface()
 {
     delete m_mainUi;
+}
+
+bool MainInterface::nativeEvent(const QByteArray &eventType, void *message, long *result)
+{
+    Q_UNUSED(eventType);
+    MSG* msg = reinterpret_cast<MSG*>(message);
+    int msgType = msg->message;
+    if(msgType == WM_DEVICECHANGE)
+    {
+        qDebug() << "Recv Event " ;
+        PDEV_BROADCAST_HDR lpdb = (PDEV_BROADCAST_HDR)msg->lParam;
+        switch(msg->wParam)
+        {
+            case DBT_DEVICETYPESPECIFIC:
+            {
+                qDebug() << "DBT_DEVICETYPESPECIFIC " ;
+                break;
+            }
+            case DBT_DEVICEARRIVAL:
+                if (lpdb -> dbch_devicetype == DBT_DEVTYP_PORT)
+                {
+                    SerialListGet();
+                    PDEV_BROADCAST_PORT_A lpdbv = (PDEV_BROADCAST_PORT_A)lpdb;
+
+                    qDebug() << "Port_Arrived and The port naem is: "<<QString( lpdbv->dbcp_name);
+                }
+                qDebug() << "DBT_DEVICEARRIVAL" ;
+            break;
+            case DBT_DEVICEREMOVECOMPLETE:
+                if (lpdb -> dbch_devicetype == DBT_DEVTYP_PORT)
+                {
+                    SerialListGet();
+                }
+                qDebug() << "DBT_DEVICEREMOVECOMPLETE" ;
+            break;
+        }
+    }
+    return false;
 }
 
 void MainInterface::MenuInit(void)
@@ -224,12 +264,12 @@ void MainInterface::ToolBarInit(void)
 {
     m_toolBar->setIconSize(QSize(18, 18));
     m_toolBar->setMaximumHeight(25);
-    m_connect = new QAction(QIcon(":/images/connect.png"), "connect");
-    m_disConnect = new QAction(QIcon(":/images/disconnect.png"), "disconnect");
-    m_settings = new QAction(QIcon(":/images/settings.png"), "setting");
-    m_clear = new QAction(QIcon(":/images/clear.png"), "clear");
-    m_fileOpen = new QAction(QIcon(":/images/fileopen.png"), "openfile");
-    m_fileSave = new QAction(QIcon(":/images/filesave.png"), "savefile");
+    m_connect = new QAction(QIcon(":/images/connect.png"), "connect", NULL);
+    m_disConnect = new QAction(QIcon(":/images/disconnect.png"), "disconnect", NULL);
+    m_settings = new QAction(QIcon(":/images/settings.png"), "setting", NULL);
+    m_clear = new QAction(QIcon(":/images/clear.png"), "clear", NULL);
+    m_fileOpen = new QAction(QIcon(":/images/fileopen.png"), "openfile", NULL);
+    m_fileSave = new QAction(QIcon(":/images/filesave.png"), "savefile", NULL);
     m_toolBar->addAction(m_connect);
     m_toolBar->addAction(m_disConnect);
     m_toolBar->addAction(m_settings);

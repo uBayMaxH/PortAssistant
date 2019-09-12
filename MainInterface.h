@@ -10,6 +10,7 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QLabel>
+#include <QAction>
 
 #include "DisplayArea.h"
 #include "SendingArea.h"
@@ -57,6 +58,10 @@ class MainInterface : public QWidget
 public:
     explicit MainInterface(QWidget *parent = nullptr);
     ~MainInterface();
+
+protected:
+    bool nativeEvent(const QByteArray &eventType, void *message, long *result);
+
 
 private:
     /*菜单栏初始化*/
