@@ -7,6 +7,10 @@
 #include <QColorDialog>
 #include <QFontDialog>
 
+#ifdef Q_OS_WIN
+#include <qt_windows.h>
+#include <dbt.h>
+#endif
 
 MainInterface::MainInterface(QWidget *parent) :
     QWidget(parent),
@@ -972,3 +976,35 @@ void MainInterface::SendDatasChangedSolt(void)
         m_json->WriteJson("SENDING_AREA_CONFIG", QJsonValue(m_sendingObject));
     }
 }
+
+#ifdef Q_OS_WIN
+//检测热插拔
+bool MainInterface::nativeEvent(const QByteArray &eventType, void *message, long *result)
+{
+    Q_UNUSED(result);
+    MSG* msg = reinterpret_cast<MSG*>(message);
+    uint msgType = msg->message;
+
+    if (eventType == "windows_generic_MSG")
+    {
+        if(msgType == WM_DEVICECHANGE)
+        {
+            PDEV_BROADCAST_HDR lpdb = reinterpret_cast<PDEV_BROADCAST_HDR>(msg->lParam);
+            switch(msg->wParam)
+            {
+            case DBT_DEVICETYPESPECIFIC:
+                break;
+            case DBT_DEVICEARRIVAL:
+            case DBT_DEVICEREMOVECOMPLETE:
+                if (lpdb -> dbch_devicetype == DBT_DEVTYP_PORT)
+                {
+                    m_serialSettings->Refresh();
+                    SerialListGet();
+                }
+                break;
+            }
+        }
+    }
+    return false;
+}
+#endif

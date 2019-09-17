@@ -93,9 +93,11 @@ public:
 private slots:
     void ShowPortInfo(int idx);
     void Apply();
-    void Refresh();
     void CheckCustomBaudRatePolicy(int idx);
     void CheckCustomDevicePathPolicy(int idx);
+
+public slots:
+    void Refresh();
 
 signals:
     void ApplyClicked(void);

@@ -103,6 +103,11 @@ private slots:
     void TCPServerOppositeAddrChanged(void);
     void SendDatasChangedSolt(void);
 
+#ifdef Q_OS_WIN
+protected:
+    virtual bool nativeEvent(const QByteArray &eventType, void *message, long *result);
+#endif
+
 private:
     Ui::MainInterface *m_mainUi = nullptr;
     ePortType_e     m_portType = PORT_TYPE_SERIAL;
