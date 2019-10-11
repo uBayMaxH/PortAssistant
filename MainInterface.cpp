@@ -821,7 +821,7 @@ void MainInterface::WriteData(const QByteArray &data)
             {
                 m_sendingArea->SendingFileTimeSet(false);
             }
-            if (m_mulStrSending->CycleSendStateGet())
+            if ((m_mulStrSending != nullptr) && (m_mulStrSending->CycleSendStateGet()))
             {
                 m_mulStrSending->CycleSendStateReset();
             }

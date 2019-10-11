@@ -270,6 +270,71 @@ public:
         return tmpArray;
     }
 
+    static char* Int2String(int num, char* str, int radix)
+    {
+        char index[] = "0123456789ABCDEFGHIGKLMNOPQRSTUVWXYZ";
+
+        unsigned unum = 0;  //存放要转换的整数的绝对值,转换的整数可能是负数
+        int i = 0, k = 0, j = 0;
+
+        if ((radix == 10) && (num < 0))
+        {
+            unum = static_cast<unsigned>(-num);
+            str[i++] = '-';
+            k = 1;
+        }
+        else
+        {
+            unum = static_cast<unsigned>(num);
+        }
+        /*逆序转换*/
+        do
+        {
+            str[i++] = index[unum % static_cast<unsigned>(radix)];
+            unum /= static_cast<unsigned>(radix);
+        }while(unum);
+        str[i] = '\0';
+
+        /*交换顺序*/
+        for (j = k; j < i/2; j++)
+        {
+            str[j] ^= str[i - 1 - j + k];
+            str[i - 1 - j + k] ^= str[j];
+            str[j] ^= str[i - 1 - j + k];
+        }
+
+        return str;
+    }
+
+    static int String2Int(const char* str)
+    {
+        char flag = '+';
+        int total = 0;
+        /*跳过空格和前面的非符号非数字字符*/
+        while((*str == ' ') || (((*str < '0') || (*str > '9')) && (*str != '-') && (*str != '+')))
+        {
+            str++;
+        }
+
+        /*判断正负,符号位不转换*/
+        if ((*str == '-') || (*str == '+'))
+        {
+            flag = *str++;
+        }
+
+        while((*str >= '0') && (*str <= '9'))
+        {
+            total = total * 10 + *str - '0';
+            str++;
+        }
+
+        if (flag == '-')
+        {
+            return -total;
+        }
+        return total;
+    }
+
 };
 
 #endif // COMMONTOOLS_H
