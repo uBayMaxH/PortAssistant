@@ -10,5 +10,6 @@
         <file>images/favicon.ico</file>
         <file>images/start.ico</file>
         <file>images/set.ico</file>
+        <file>images/pro.ico</file>
     </qresource>
 </RCC>

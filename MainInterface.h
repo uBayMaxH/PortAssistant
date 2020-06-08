@@ -24,6 +24,7 @@
 #include "TcpClientSocket.h"
 #include "TcpServerSocket.h"
 #include "JsonOperate.h"
+#include "BusProtocolAnalysis.h"
 
 typedef enum
 {
@@ -155,6 +156,8 @@ private:
     ConversionTools         *m_conversionTool = nullptr;
     /*校验工具*/
     CheckTools              *m_checkTool = nullptr;
+    /*公交协议解析工具*/
+    BusProtocolAnalysis     *m_busProAnaly = nullptr;
 
     /*JSON*/
     JsonOperate             *m_json = nullptr;

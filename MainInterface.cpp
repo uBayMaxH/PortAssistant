@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include <QColorDialog>
 #include <QFontDialog>
+#include <QDebug>
 
 #ifdef Q_OS_WIN
 #include <qt_windows.h>
@@ -206,6 +207,9 @@ void MainInterface::MenuInit(void)
     m_action[MENU_EXTEND][2] = new QAction("校验工具", this);
     m_menu[MENU_EXTEND]->addAction(m_action[MENU_EXTEND][2]);
 
+    m_action[MENU_EXTEND][3] = new QAction("公交协议解析工具", this);
+    m_menu[MENU_EXTEND]->addAction(m_action[MENU_EXTEND][3]);
+
     //帮助
     m_menu[MENU_HELP] = new QMenu("帮助(&H)");
     m_action[MENU_HELP][0] = new QAction("帮助", this);
@@ -372,7 +376,17 @@ void MainInterface::SerialListGet(void)
             {
                 m_action[MENU_PORT_SELECT][4 + i] = new QAction(portList[i], this);
                 m_action[MENU_PORT_SELECT][4 + i]->setCheckable(true);
-                if (portList[i].indexOf(m_serialSettings->CurrentSerialNameGet()) >= 0)
+                int endOff = portList[i].indexOf(" ");
+                QString tmpStr = nullptr;
+                if (endOff > 0)
+                {
+                    tmpStr = portList[i].mid(portList[i].indexOf("COM"), endOff);
+                }
+                else
+                {
+                    tmpStr = portList[i];
+                }
+                if (tmpStr.compare(m_serialSettings->CurrentSerialNameGet()) == 0)
                 {
                     m_action[MENU_PORT_SELECT][4 + i]->setChecked(true);
                 }
@@ -432,7 +446,15 @@ void MainInterface::PortSelect(QString string)
         ClosePort();
 
         m_portType = PORT_TYPE_SERIAL;
-        m_serialSettings->CurrentSerialNameSet(string.mid(string.indexOf("COM"), 4));
+        int endOff = string.indexOf(" ");
+        if (endOff > 0)
+        {
+            m_serialSettings->CurrentSerialNameSet(string.mid(string.indexOf("COM"), endOff));
+        }
+        else
+        {
+            m_serialSettings->CurrentSerialNameSet(string.mid(string.indexOf("COM")));
+        }
     }
 #else
     else if (string.indexOf("tty") >= 0)
@@ -572,6 +594,14 @@ void MainInterface::TrigerMenuSlot(QAction *action)
         }
         m_checkTool->Init();
         m_checkTool->show();
+    }
+    else if (action->text() == "公交协议解析工具")
+    {
+        if (m_busProAnaly == nullptr)
+        {
+            m_busProAnaly = new BusProtocolAnalysis();
+        }
+        m_busProAnaly->show();
     }
     else if (action->text() == "帮助")
     {

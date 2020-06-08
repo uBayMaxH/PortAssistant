@@ -51,7 +51,8 @@ SOURCES += \
     TcpClientSocket.cpp \
     TcpServerSocket.cpp \
     SocketBase.cpp \
-    JsonOperate.cpp
+    JsonOperate.cpp \
+    BusProtocolAnalysis.cpp
 
 HEADERS += \
         MainInterface.h \
@@ -70,7 +71,8 @@ HEADERS += \
     TcpClientSocket.h \
     TcpServerSocket.h \
     SocketBase.h \
-    JsonOperate.h
+    JsonOperate.h \
+    BusProtocolAnalysis.h
 
 FORMS += \
         MainInterface.ui \
@@ -79,7 +81,8 @@ FORMS += \
     MultipleStringSending.ui \
     ConversionTools.ui \
     CheckTools.ui \
-    NetPortSettings.ui
+    NetPortSettings.ui \
+    BusProtocolAnalysis.ui
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
